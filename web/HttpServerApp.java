@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import service.ProductManager;
 
 public class HttpServerApp{
     private HttpServer server;
@@ -13,6 +14,7 @@ public class HttpServerApp{
     public void start() throws IOException{
         server=HttpServer.create(new InetSocketAddress(8081),0);
         server.createContext("/",this::handleHome);
+        server.createContext("/products",this::handleProducts);
         server.setExecutor(null);
         server.start();
         System.out.println("Inventory Management System started.");
@@ -20,13 +22,23 @@ public class HttpServerApp{
     }
 
     private void handleHome(HttpExchange exchange) throws IOException{
-    if(!exchange.getRequestMethod().equalsIgnoreCase("GET")){
-        sendResponse(exchange,"Method Not Allowed",405);
-        return;
+        if(!exchange.getRequestMethod().equalsIgnoreCase("GET")){
+            sendResponse(exchange,"Method Not Allowed",405);
+            return;
+        }
+
+        sendResponse(exchange,DashboardPage.getPage(),200);
     }
 
-    sendResponse(exchange,DashboardPage.getPage(),200);
-}
+    private void handleProducts(HttpExchange exchange) throws IOException{
+        if(!exchange.getRequestMethod().equalsIgnoreCase("GET")){
+            sendResponse(exchange,"Method Not Allowed",405);
+            return;
+        }
+
+        ProductManager productManager=new ProductManager();
+        sendResponse(exchange,ProductPage.getPage(productManager),200);
+    }
 
     private void sendResponse(HttpExchange exchange,String response,int statusCode) throws IOException{
         byte[] data=response.getBytes(StandardCharsets.UTF_8);
