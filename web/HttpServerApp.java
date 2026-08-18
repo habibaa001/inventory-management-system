@@ -2,7 +2,6 @@ package web;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -12,35 +11,22 @@ public class HttpServerApp{
     private HttpServer server;
 
     public void start() throws IOException{
-        server=HttpServer.create(new InetSocketAddress(8080),0);
+        server=HttpServer.create(new InetSocketAddress(8081),0);
         server.createContext("/",this::handleHome);
         server.setExecutor(null);
         server.start();
         System.out.println("Inventory Management System started.");
-        System.out.println("Open: http://localhost:8080");
+        System.out.println("Open: http://localhost:8081");
     }
 
     private void handleHome(HttpExchange exchange) throws IOException{
-        if(!exchange.getRequestMethod().equalsIgnoreCase("GET")){
-            sendResponse(exchange,"Method Not Allowed",405);
-            return;
-        }
-
-        String html="""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Inventory Management System</title>
-                </head>
-                <body>
-                    <h1>Inventory Management System</h1>
-                    <p>Java Web Server is running successfully.</p>
-                </body>
-                </html>
-                """;
-
-        sendResponse(exchange,html,200);
+    if(!exchange.getRequestMethod().equalsIgnoreCase("GET")){
+        sendResponse(exchange,"Method Not Allowed",405);
+        return;
     }
+
+    sendResponse(exchange,DashboardPage.getPage(),200);
+}
 
     private void sendResponse(HttpExchange exchange,String response,int statusCode) throws IOException{
         byte[] data=response.getBytes(StandardCharsets.UTF_8);
